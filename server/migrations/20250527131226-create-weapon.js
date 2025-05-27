@@ -25,7 +25,7 @@ module.exports = {
         type: Sequelize.STRING
       },
       damageElement: {
-        type: Sequelize.INTEGER
+        type: Sequelize.STRING
       },
       createdAt: {
         allowNull: false,
