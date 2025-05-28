@@ -16,11 +16,7 @@ module.exports = (sequelize, DataTypes) => {
   Recommendation.init(
     {
       userId: DataTypes.INTEGER,
-      recomendedWeapons: {
-        type: DataTypes.ARRAY(DataTypes.STRING), // Using destructured DataTypes
-        allowNull: true,
-        defaultValue: [],
-      },
+      recomendedWeapons: DataTypes.STRING,
       reasoning: DataTypes.TEXT,
     },
     {

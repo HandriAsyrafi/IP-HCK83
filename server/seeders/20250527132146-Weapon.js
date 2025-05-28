@@ -10,22 +10,19 @@ module.exports = {
     const allWeapons = response.data;
 
     const highRarityWeapons = allWeapons
-      .filter((weapon) => weapon.rarity >= 7 && weapon.specials.length !== 0)
+      .filter((weapon) => weapon.rarity >= 6 && weapon.specials.length !== 0)
       .map((weapon) => ({
         name: weapon.name,
         kind: weapon.kind,
         rarity: weapon.rarity,
         damage: weapon.damage.raw,
 
-        element:
-          weapon.specials.length !== 0
-            ? weapon.specials.map((el) => {
-                return el.element ? el.element : "No Element";
-              })
-            : "No Element",
+        element: weapon.specials.map((el) => {
+          return el.element ? el.element : "No Element";
+        }),
         damageElement: weapon.specials.map((el) => el.damage.display),
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       }));
 
     console.log(highRarityWeapons);

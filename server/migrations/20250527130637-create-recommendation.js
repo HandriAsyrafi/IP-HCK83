@@ -18,11 +18,14 @@ module.exports = {
         onDelete: "cascade",
         onUpdate: "cascade",
       },
-      recommendedWeapons: {
-        // Correct way: Access DataTypes from the 'Sequelize' object
-        type: Sequelize.ARRAY(Sequelize.STRING), // Example: array of strings
-        allowNull: true,
-        defaultValue: [],
+      weaponId: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: "Weapons",
+          key: "id",
+        },
+        onDelete: "cascade",
+        onUpdate: "cascade",
       },
       reasoning: {
         type: Sequelize.TEXT,
