@@ -10,13 +10,16 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       Recommendation.belongsTo(models.User, {
         foreignKey: "userId",
-      });
+      }),
+        Recommendation.belongsTo(models.Weapon, {
+          foreignKey: "weaponId",
+        });
     }
   }
   Recommendation.init(
     {
       userId: DataTypes.INTEGER,
-      recomendedWeapons: DataTypes.STRING,
+      weaponId: DataTypes.STRING,
       reasoning: DataTypes.TEXT,
     },
     {
