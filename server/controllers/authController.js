@@ -48,7 +48,6 @@ class AuthController {
         email: user.email,
         username: user.username,
       };
-      // console.log(payload);
 
       let token = generateToken(payload);
 

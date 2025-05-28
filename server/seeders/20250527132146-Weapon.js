@@ -25,7 +25,7 @@ module.exports = {
         updatedAt: new Date(),
       }));
 
-    console.log(highRarityWeapons);
+    // console.log(highRarityWeapons);
     await queryInterface.bulkInsert("Weapons", highRarityWeapons, {});
   },
 

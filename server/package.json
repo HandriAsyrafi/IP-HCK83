@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "start": "node app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -10,7 +11,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@google/genai": "^1.1.0",
+    "@google/generative-ai": "^0.24.1",
     "axios": "^1.9.0",
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
