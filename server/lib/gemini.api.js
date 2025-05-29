@@ -8,16 +8,23 @@ class GeminiService {
     try {
       const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
       
+      // Create a list of available weapon IDs and names for the AI
+      const weaponList = weapons.map(w => `ID: ${w.id}, Name: ${w.name}, Element: ${w.element}, Damage: ${w.damage}`).join('\n');
+      
       const prompt = `
         You are a Monster Hunter expert. Based on the following data, recommend the best weapon for the user.
         
         User Preferences: ${JSON.stringify(userPreferences)}
-        Available Monsters: ${JSON.stringify(monsters)}
-        Available Weapons: ${JSON.stringify(weapons)}
+        Target Monster: ${JSON.stringify(monsters[0])}
+        
+        Available Weapons (you MUST choose from these exact IDs):
+        ${weaponList}
+        
+        IMPORTANT: You must select a weaponId from the list above. Do not make up weapon IDs.
         
         Please provide a recommendation in JSON format:
         {
-          "weaponId": "weapon_id_here",
+          "weaponId": "actual_weapon_id_from_list_above",
           "reasoning": "detailed explanation"
         }
       `;

@@ -4,6 +4,7 @@ const MonsterController = require("./controllers/monsterController");
 const WeaponController = require("./controllers/weaponController");
 const AuthController = require("./controllers/authController");
 const RecController = require("./controllers/recController");
+const { authenticate } = require('./middleware/auth');
 
 const app = express();
 const port = 3000;
@@ -17,6 +18,7 @@ app.get("/", async (req, res) => {
 });
 
 // Authentication routes
+app.post("/google-login", AuthController.googleLogin);
 app.post("/login", AuthController.login);
 
 // Data routes
@@ -30,6 +32,9 @@ app.delete("/recommendations/:id", RecController.delRec);
 
 // AI Analysis routes
 app.get("/monsters/:monsterId/analyze", RecController.analyzeMonster);
+
+// NEW: Best weapon recommendation for specific monster (with authentication)
+app.get("/monsters/:monsterId/best-weapon", authenticate, RecController.getBestWeaponForMonster);
 
 app.listen(port, () => {
   console.log(`Monster Hunter API listening on port ${port}`);
