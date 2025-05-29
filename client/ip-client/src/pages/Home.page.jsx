@@ -6,7 +6,7 @@ import Swal from "sweetalert2";
 export default function Home() {
   const [monsters, setMonsters] = useState([]);
   const [recommendations, setRecommendations] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loadingMonsters, setLoadingMonsters] = useState({}); // Change this line
   const [showRecommendations, setShowRecommendations] = useState(false);
   const [selectedRecommendation, setSelectedRecommendation] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -39,7 +39,7 @@ export default function Home() {
   };
 
   const generateWeapon = async (monsterId) => {
-    setLoading(true);
+    setLoadingMonsters(prev => ({ ...prev, [monsterId]: true })); // Change this line
     try {
       const token = localStorage.getItem("access_token");
       const response = await axios.get(
@@ -70,7 +70,7 @@ export default function Home() {
         Swal.fire("Error", "Failed to generate weapon recommendation", "error");
       }
     } finally {
-      setLoading(false);
+      setLoadingMonsters(prev => ({ ...prev, [monsterId]: false })); // Change this line
     }
   };
 
@@ -151,10 +151,10 @@ export default function Home() {
                   )}
                   <button
                     onClick={() => generateWeapon(monster.id)}
-                    disabled={loading}
+                    disabled={loadingMonsters[monster.id]} // Change this line
                     className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-bold py-2 px-4 rounded-lg transition duration-200"
                   >
-                    {loading ? "Generating..." : "Generate Best Weapon"}
+                    {loadingMonsters[monster.id] ? "Generating..." : "Generate Best Weapon"} {/* Change this line */}
                   </button>
                 </div>
               </div>

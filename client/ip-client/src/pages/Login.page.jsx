@@ -19,12 +19,7 @@ export default function Login() {
         password,
       });
 
-      console.log(data);
-
-      // Fix: Change this line to access the token correctly
-      const access_token = data.token; // Remove the destructuring from data.token
-      // OR if the token is nested, use: const access_token = data.token;
-      console.log(access_token);
+      const { access_token } = data.token;
 
       localStorage.setItem("access_token", access_token);
       navigate("/");
