@@ -19,7 +19,7 @@ module.exports = (sequelize, DataTypes) => {
   Recommendation.init(
     {
       userId: DataTypes.INTEGER,
-      weaponId: DataTypes.STRING,
+      weaponId: DataTypes.INTEGER,
       reasoning: DataTypes.TEXT,
     },
     {

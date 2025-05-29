@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/5</span>
+                <span class='fraction'>5/5</span>
             </div>
         
             
@@ -37,16 +37,16 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/2</span>
+                <span class='fraction'>2/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/5</span>
+                <span class='fraction'>5/5</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -95,8 +95,8 @@
 <a name='L30'></a><a href='#L30'>30</a>
 <a name='L31'></a><a href='#L31'>31</a>
 <a name='L32'></a><a href='#L32'>32</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -104,7 +104,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -112,7 +112,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -123,19 +123,19 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">"use strict";
-const { Model } = <span class="cstat-no" title="statement not covered" >require("sequelize");</span>
-<span class="cstat-no" title="statement not covered" >module.exports = <span class="fstat-no" title="function not covered" >(s</span>equelize, DataTypes) =&gt; {</span>
+const { Model } = require("sequelize");
+module.exports = (sequelize, DataTypes) =&gt; {
   class Recommendation extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
-<span class="fstat-no" title="function not covered" >    st</span>atic associate(models) {
-<span class="cstat-no" title="statement not covered" >      Recommendation.belongsTo(models.User, {</span>
+    static associate(models) {
+      Recommendation.belongsTo(models.User, {
         foreignKey: "userId",
       }),
         Recommendation.belongsTo(models.Weapon, {
@@ -143,10 +143,10 @@ const { Model } = <span class="cstat-no" title="statement not covered" >require(
         });
     }
   }
-<span class="cstat-no" title="statement not covered" >  Recommendation.init(</span>
+  Recommendation.init(
     {
       userId: DataTypes.INTEGER,
-      weaponId: DataTypes.STRING,
+      weaponId: DataTypes.INTEGER,
       reasoning: DataTypes.TEXT,
     },
     {
@@ -154,7 +154,7 @@ const { Model } = <span class="cstat-no" title="statement not covered" >require(
       modelName: "Recommendation",
     }
   );
-<span class="cstat-no" title="statement not covered" >  return Recommendation;</span>
+  return Recommendation;
 };
 &nbsp;</pre></td></tr></table></pre>
 
@@ -163,7 +163,7 @@ const { Model } = <span class="cstat-no" title="statement not covered" >require(
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-05-28T15:57:34.151Z
+                at 2025-05-29T14:49:07.771Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
