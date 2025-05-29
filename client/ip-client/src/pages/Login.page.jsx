@@ -19,7 +19,9 @@ export default function Login() {
         password,
       });
 
-      const { access_token } = data.token;
+      const access_token = data.token;
+
+      console.log(access_token);
 
       localStorage.setItem("access_token", access_token);
       navigate("/");

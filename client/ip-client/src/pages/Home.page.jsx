@@ -120,13 +120,20 @@ export default function Home() {
       <Navbar />
 
       <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-800">
-            Monster Hunter Wilds
-          </h1>
+        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-8 gap-4">
+          <div className="flex-1">
+            <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-2">
+              # Welcome to Monster Hunter Wilds Weapon Advisor! 🗡️⚔️
+            </h1>
+            <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
+              Your ultimate Monster Hunter companion! This intelligent weapon
+              recommendation system is designed to help you dominate every hunt
+              with the perfect weapon choice.
+            </p>
+          </div>
           <button
             onClick={() => setShowRecommendations(!showRecommendations)}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-200"
+            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-200 w-full sm:w-auto lg:ml-4 lg:flex-shrink-0"
           >
             {showRecommendations ? "Show Monsters" : "My Recommendations"}
           </button>
@@ -140,6 +147,20 @@ export default function Home() {
                 key={monster.id}
                 className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
               >
+                {/* Add monster image */}
+                {monster.imageUrl && (
+                  <div className="h-75 overflow-hidden">
+                    <img
+                      src={monster.imageUrl}
+                      alt={monster.name}
+                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                      onError={(e) => {
+                        e.target.style.display = "none";
+                      }}
+                    />
+                  </div>
+                )}
+
                 <div className="p-6">
                   <h3 className="text-xl font-bold text-gray-800 mb-2">
                     {monster.name}
@@ -166,7 +187,7 @@ export default function Home() {
                     </div>
                   )}
 
-                  {/* Add Rarity Selector */}
+                  {/* Rarity Selector */}
                   <div className="mb-4">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Weapon Rarity (Optional):
@@ -178,6 +199,7 @@ export default function Home() {
                       }
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
+                      <option value="">Any Rarity</option>
                       <option value="6">⭐⭐⭐⭐⭐⭐ Rarity 6</option>
                       <option value="7">⭐⭐⭐⭐⭐⭐⭐ Rarity 7</option>
                       <option value="8">⭐⭐⭐⭐⭐⭐⭐⭐ Rarity 8</option>
@@ -187,7 +209,7 @@ export default function Home() {
                   <button
                     onClick={() => generateWeapon(monster.id)}
                     disabled={loadingMonsters[monster.id]}
-                    className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-bold py-2 px-4 rounded-lg transition duration-200"
+                    className="w-full bg-teal-800 hover:bg-teal-900 disabled:bg-gray-400 text-white font-bold py-2 px-4 rounded-lg transition duration-200"
                   >
                     {loadingMonsters[monster.id]
                       ? "Generating..."
@@ -260,7 +282,7 @@ export default function Home() {
       {/* Modal for showing generated recommendation */}
       {showModal && selectedRecommendation && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-3xl w-full mx-4 max-h-150 overflow-y-auto border-4">
+          <div className="bg-white rounded-lg p-6 max-w-5xl w-full mx-4 max-h-200 overflow-y-auto border-4">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-2xl font-bold text-gray-800">
                 Weapon Recommendation
