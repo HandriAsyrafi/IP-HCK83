@@ -110,8 +110,8 @@ class RecController {
   static async getBestWeaponForMonster(req, res, next) {
     try {
       const { monsterId } = req.params;
-      // At the top of getBestWeaponForMonster method
-      const userId = req.user?.id || 1; // Use user ID 1 as default system user
+      const { rarity } = req.query; // Add this line to get rarity from query params
+      const userId = req.user?.id || 1;
 
       // Fetch the specific monster
       const monster = await Monster.findByPk(monsterId);
@@ -120,11 +120,17 @@ class RecController {
         return res.status(404).json({ error: "Monster not found" });
       }
 
-      // Fetch all available weapons
-      const weapons = await Weapon.findAll();
+      // Fetch weapons with optional rarity filter
+      let weaponQuery = {};
+      if (rarity) {
+        weaponQuery.where = { rarity: parseInt(rarity) }; // Add rarity filter
+      }
+      const weapons = await Weapon.findAll(weaponQuery); // Modify this line
 
       if (weapons.length === 0) {
-        return res.status(404).json({ error: "No weapons available" });
+        return res.status(404).json({ 
+          error: rarity ? `No weapons available with rarity ${rarity}` : "No weapons available" 
+        });
       }
 
       // Create a focused prompt for best weapon recommendation

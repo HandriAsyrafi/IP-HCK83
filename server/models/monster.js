@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Monster extends Model {
@@ -14,8 +14,9 @@ module.exports = (sequelize, DataTypes) => {
       name: DataTypes.STRING,
       species: DataTypes.STRING,
       description: DataTypes.STRING,
+      imageUrl: DataTypes.STRING, // Add this line
       weaknesses: {
-        type: DataTypes.ARRAY(DataTypes.STRING), // Using destructured DataTypes
+        type: DataTypes.ARRAY(DataTypes.STRING),
         allowNull: true,
         defaultValue: [],
       },

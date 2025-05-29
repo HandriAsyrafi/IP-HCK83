@@ -1,17 +1,30 @@
-"use strict";
+'use strict';
 
 const axios = require("axios");
-const monster = require("../models/monster");
+const fs = require('fs');
+const path = require('path');
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
     const response = await axios.get("https://wilds.mhdb.io/en/monsters");
+    
+    // Load picture data from JSON file
+    const pictureData = JSON.parse(
+      fs.readFileSync(path.join(__dirname, '../data/monsterPict.json'), 'utf8')
+    );
+    
+    // Create a map for easy lookup
+    const pictureMap = {};
+    pictureData.forEach(item => {
+      pictureMap[item.id] = item.url;
+    });
 
-    const result = response.data.map((monster) => ({
+    const result = response.data.map((monster, index) => ({
       name: monster.name,
       species: monster.species,
       description: monster.description,
+      imageUrl: pictureMap[index + 1] || null, // Map by index + 1 to match your JSON IDs
       weaknesses: monster.weaknesses.map((w) => {
         // Ambil property penting sesuai jenis weakness:
         if (w.kind === "element") return w.element;
