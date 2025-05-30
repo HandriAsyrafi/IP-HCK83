@@ -142,6 +142,181 @@ describe('AuthController', () => {
       expect(response.body.error).toBe('Validation error');
       expect(response.body.details).toEqual(['Email must be unique']);
     });
+
+    // Additional tests to cover lines 17-56
+    it('should log token decoding and verification process', async () => {
+      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+      
+      // Mock a token with proper structure for decoding
+      const mockToken = 'header.' + Buffer.from(JSON.stringify({
+        aud: 'test-google-client-id',
+        email: 'test@gmail.com'
+      })).toString('base64') + '.signature';
+      
+      const mockGooglePayload = {
+        email: 'test@gmail.com',
+        name: 'Test User',
+        sub: 'google-user-id-123'
+      };
+      
+      const mockTicket = {
+        getPayload: () => mockGooglePayload
+      };
+      
+      mockClient.verifyIdToken.mockResolvedValue(mockTicket);
+      User.findOne.mockResolvedValue(null);
+      User.create.mockResolvedValue({ id: 1, email: 'test@gmail.com' });
+      generateToken.mockReturnValue('mock-token');
+      
+      const response = await request(app)
+        .post('/auth/google')
+        .send({ id_token: mockToken });
+      
+      expect(response.status).toBe(201);
+      expect(consoleSpy).toHaveBeenCalledWith('Token audience:', 'test-google-client-id');
+      expect(consoleSpy).toHaveBeenCalledWith('Expected audience:', 'test-google-client-id');
+      expect(consoleSpy).toHaveBeenCalledWith('Google payload received:', {
+        email: 'test@gmail.com',
+        name: 'Test User',
+        sub: 'google-user-id-123'
+      });
+      
+      consoleSpy.mockRestore();
+    });
+
+    it('should log existing user found process', async () => {
+      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+      const existingUser = { id: 1, email: 'test@gmail.com' };
+      
+      mockClient.verifyIdToken.mockResolvedValue(mockTicket);
+      User.findOne.mockResolvedValue(existingUser);
+      generateToken.mockReturnValue('mock-token');
+      
+      const response = await request(app)
+        .post('/auth/google')
+        .send({ id_token: 'mock-google-token' });
+      
+      expect(response.status).toBe(200);
+      expect(consoleSpy).toHaveBeenCalledWith('Existing user found:', 1);
+      expect(consoleSpy).toHaveBeenCalledWith('Logging in existing user:', 1);
+      
+      consoleSpy.mockRestore();
+    });
+
+    it('should log new user creation process', async () => {
+      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+      const newUser = { id: 2, email: 'newuser@gmail.com' };
+      
+      mockClient.verifyIdToken.mockResolvedValue(mockTicket);
+      User.findOne.mockResolvedValue(null);
+      User.create.mockResolvedValue(newUser);
+      generateToken.mockReturnValue('new-token');
+      
+      const response = await request(app)
+        .post('/auth/google')
+        .send({ id_token: 'mock-google-token' });
+      
+      expect(response.status).toBe(201);
+      expect(consoleSpy).toHaveBeenCalledWith('Existing user found:', 'None');
+      expect(consoleSpy).toHaveBeenCalledWith('Creating new user for email:', 'test@gmail.com');
+      expect(consoleSpy).toHaveBeenCalledWith('User data to create:', {
+        username: 'Test User',
+        email: 'test@gmail.com',
+        password: '[HIDDEN]'
+      });
+      expect(consoleSpy).toHaveBeenCalledWith('New user created successfully:', 2);
+      
+      consoleSpy.mockRestore();
+    });
+
+    it('should handle username fallback when name is not provided', async () => {
+      const mockPayloadWithoutName = {
+        email: 'test@gmail.com',
+        sub: 'google-user-id-123'
+        // name is undefined
+      };
+      
+      const mockTicketWithoutName = {
+        getPayload: () => mockPayloadWithoutName
+      };
+      
+      mockClient.verifyIdToken.mockResolvedValue(mockTicketWithoutName);
+      User.findOne.mockResolvedValue(null);
+      User.create.mockResolvedValue({ id: 1, email: 'test@gmail.com' });
+      generateToken.mockReturnValue('mock-token');
+      
+      const response = await request(app)
+        .post('/auth/google')
+        .send({ id_token: 'mock-google-token' });
+      
+      expect(response.status).toBe(201);
+      expect(User.create).toHaveBeenCalledWith(expect.objectContaining({
+        username: 'test', // Should fallback to email prefix
+        email: 'test@gmail.com'
+      }));
+    });
+
+    // Test to cover lines 65-67 (detailed error logging)
+    it('should log detailed error information on failure', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const mockError = new Error('Token verification failed');
+      mockError.name = 'TokenError';
+      mockError.stack = 'Error stack trace';
+      
+      mockClient.verifyIdToken.mockRejectedValue(mockError);
+      
+      const response = await request(app)
+        .post('/auth/google')
+        .send({ id_token: 'invalid-token' });
+      
+      expect(response.status).toBe(500);
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Google login error details:', {
+        message: 'Token verification failed',
+        stack: 'Error stack trace',
+        name: 'TokenError'
+      });
+      
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should handle SequelizeValidationError specifically', async () => {
+      const validationError = {
+        name: 'SequelizeValidationError',
+        errors: [{ message: 'Username is required' }, { message: 'Email must be valid' }]
+      };
+      
+      mockClient.verifyIdToken.mockResolvedValue(mockTicket);
+      User.findOne.mockResolvedValue(null);
+      User.create.mockRejectedValue(validationError);
+      
+      const response = await request(app)
+        .post('/auth/google')
+        .send({ id_token: 'mock-google-token' });
+      
+      expect(response.status).toBe(400);
+      expect(response.body.error).toBe('Validation error');
+      expect(response.body.details).toEqual(['Username is required', 'Email must be valid']);
+    });
+
+    it('should call next(err) for non-validation errors', async () => {
+      const nextSpy = jest.fn();
+      const mockError = new Error('Database connection failed');
+      
+      mockClient.verifyIdToken.mockResolvedValue(mockTicket);
+      User.findOne.mockResolvedValue(null);
+      User.create.mockRejectedValue(mockError);
+      
+      // Mock the controller method directly to test next() call
+      const req = { body: { id_token: 'mock-token' } };
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn()
+      };
+      
+      await AuthController.googleLogin(req, res, nextSpy);
+      
+      expect(nextSpy).toHaveBeenCalledWith(mockError);
+    });
   });
 
   describe('Standard Login', () => {
@@ -228,6 +403,24 @@ describe('AuthController', () => {
 
     it('should handle database errors', async () => {
       User.findOne.mockRejectedValue(new Error('Database connection failed'));
+      
+      const response = await request(app)
+        .post('/auth/login')
+        .send({
+          email: 'user@example.com',
+          password: 'password123'
+        });
+      
+      expect(response.status).toBe(500);
+      expect(response.body.message).toBe('Internal Server Error');
+    });
+
+    // Additional test to ensure complete coverage of non-errorLogin exceptions
+    it('should handle non-errorLogin exceptions with 500 status', async () => {
+      const mockError = new Error('Unexpected database error');
+      mockError.name = 'DatabaseError'; // Not 'errorLogin'
+      
+      User.findOne.mockRejectedValue(mockError);
       
       const response = await request(app)
         .post('/auth/login')
