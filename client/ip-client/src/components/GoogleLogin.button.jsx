@@ -14,7 +14,7 @@ export default function GoogleButton() {
         try {
           // Fixed: Use correct endpoint and request body format
           const { data } = await axios.post(
-            "http://localhost:3000/google-login",
+            "https://gc.handriasyrafi.site/google-login",
             {
               id_token: response.credential, // Changed from 'googleToken' to 'id_token'
             }
@@ -25,7 +25,6 @@ export default function GoogleButton() {
 
           // Redirect to home page after successful login
           navigate("/");
-          
         } catch (error) {
           console.error(
             "Google login failed:",

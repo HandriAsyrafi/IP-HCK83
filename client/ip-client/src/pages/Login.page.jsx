@@ -14,7 +14,7 @@ export default function Login() {
     try {
       e.preventDefault();
 
-      const { data } = await axios.post("http://localhost:3000/login", {
+      const { data } = await axios.post("https://gc.handriasyrafi.site/login", {
         email,
         password,
       });

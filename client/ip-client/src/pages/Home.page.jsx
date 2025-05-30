@@ -12,7 +12,7 @@ export default function Home() {
   const [showModal, setShowModal] = useState(false);
   const [selectedRarity, setSelectedRarity] = useState({}); // Add this state for rarity per monster
 
-  const baseURL = "http://localhost:3000";
+  const baseURL = "https://gc.handriasyrafi.site";
 
   // Fetch monsters on component mount
   useEffect(() => {
