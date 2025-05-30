@@ -5,11 +5,12 @@ const WeaponController = require("./controllers/weaponController");
 const AuthController = require("./controllers/authController");
 const RecController = require("./controllers/recController");
 
-const { authenticate } = require('./middleware/auth');
-
+const { authenticate } = require("./middleware/auth");
 
 const app = express();
-const port = 3000;
+// const port = 3000;
+
+
 
 app.use(cors());
 app.use(express.urlencoded({ extended: false }));
@@ -35,9 +36,10 @@ app.delete("/recommendations/:id", RecController.delRec);
 app.get("/monsters/:monsterId/analyze", RecController.analyzeMonster);
 
 // NEW: Best weapon recommendation for specific monster (with authentication)
-app.get("/monsters/:monsterId/best-weapon", authenticate, RecController.getBestWeaponForMonster);
+app.get(
+  "/monsters/:monsterId/best-weapon",
+  authenticate,
+  RecController.getBestWeaponForMonster
+);
 
-
-app.listen(port, () => {
-  console.log(`Monster Hunter API listening on port ${port}`);
-});
+module.exports = app;
