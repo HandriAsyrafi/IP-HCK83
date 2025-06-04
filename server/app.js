@@ -10,8 +10,6 @@ const { authenticate } = require("./middleware/auth");
 const app = express();
 // const port = 3000;
 
-
-
 app.use(cors());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
@@ -30,6 +28,11 @@ app.get("/weapons", WeaponController.weapons);
 
 // Recommendation routes
 app.get("/recommendations", RecController.rec);
+app.put(
+  "/recommendations/:id",
+  authenticate,
+  RecController.updateRecommendation
+);
 app.delete("/recommendations/:id", RecController.delRec);
 
 // AI Analysis routes
