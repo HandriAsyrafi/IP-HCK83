@@ -11,6 +11,8 @@ export default function Home() {
   const [selectedRecommendation, setSelectedRecommendation] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedRarity, setSelectedRarity] = useState({}); // Add this state for rarity per monster
+  const [editingRecommendation, setEditingRecommendation] = useState(null);
+  const [editForm, setEditForm] = useState({ reasoning: "" });
 
   const baseURL = "https://gc.handriasyrafi.site";
 
@@ -108,6 +110,42 @@ export default function Home() {
       console.error("Error deleting recommendation:", error);
       Swal.fire("Error", "Failed to delete recommendation", "error");
     }
+  };
+
+  const startEdit = (recommendation) => {
+    setEditingRecommendation(recommendation);
+    setEditForm({ reasoning: recommendation.reasoning || "" });
+  };
+
+  const updateRecommendation = async (recommendationId) => {
+    try {
+      const token = localStorage.getItem("access_token");
+      await axios.put(
+        `${baseURL}/recommendations/${recommendationId}`,
+        {
+          reasoning: editForm.reasoning,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      await fetchRecommendations();
+      setEditingRecommendation(null);
+      setEditForm({ reasoning: "" });
+
+      Swal.fire("Updated!", "Recommendation has been updated.", "success");
+    } catch (error) {
+      console.error("Error updating recommendation:", error);
+      Swal.fire("Error", "Failed to update recommendation", "error");
+    }
+  };
+
+  const cancelEdit = () => {
+    setEditingRecommendation(null);
+    setEditForm({ reasoning: "" });
   };
 
   const closeModal = () => {
@@ -257,18 +295,63 @@ export default function Home() {
                             <span className="font-semibold">User:</span>{" "}
                             {rec.User?.email || "Unknown"}
                           </p>
-                          {rec.reasoning && (
-                            <p className="text-sm text-gray-700 bg-gray-100 p-2 rounded">
-                              {rec.reasoning}
-                            </p>
+
+                          {/* Edit form or display reasoning */}
+                          {editingRecommendation?.id === rec.id ? (
+                            <div className="mt-3">
+                              <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Edit Reasoning:
+                              </label>
+                              <textarea
+                                value={editForm.reasoning}
+                                onChange={(e) =>
+                                  setEditForm({ reasoning: e.target.value })
+                                }
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                rows="3"
+                                placeholder="Enter reasoning for this recommendation..."
+                              />
+                              <div className="mt-2 flex gap-2">
+                                <button
+                                  onClick={() => updateRecommendation(rec.id)}
+                                  className="bg-green-600 hover:bg-green-700 text-white font-bold py-1 px-3 rounded transition duration-200"
+                                >
+                                  Save
+                                </button>
+                                <button
+                                  onClick={cancelEdit}
+                                  className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-1 px-3 rounded transition duration-200"
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            rec.reasoning && (
+                              <p className="text-sm text-gray-700 bg-gray-100 p-2 rounded">
+                                {rec.reasoning}
+                              </p>
+                            )
                           )}
                         </div>
-                        <button
-                          onClick={() => deleteRecommendation(rec.id)}
-                          className="ml-4 bg-red-600 hover:bg-red-700 text-white font-bold py-1 px-3 rounded transition duration-200"
-                        >
-                          Delete
-                        </button>
+
+                        {/* Action buttons */}
+                        <div className="ml-4 flex flex-col gap-2">
+                          {editingRecommendation?.id !== rec.id && (
+                            <button
+                              onClick={() => startEdit(rec)}
+                              className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded transition duration-200"
+                            >
+                              Edit
+                            </button>
+                          )}
+                          <button
+                            onClick={() => deleteRecommendation(rec.id)}
+                            className="bg-red-600 hover:bg-red-700 text-white font-bold py-1 px-3 rounded transition duration-200"
+                          >
+                            Delete
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ))}

@@ -1,39 +1,57 @@
 import GoogleButton from "../components/GoogleLogin.button";
-import axios from "axios";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
-
+import { useDispatch, useSelector } from "react-redux";
+import { loginUser, clearLoginError } from "../store/authSlice";
 import Swal from "sweetalert2";
 
 export default function Login() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { isLoading, error, success } = useSelector((state) => state.login);
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  async function handleLogin(e) {
-    try {
-      e.preventDefault();
-
-      const { data } = await axios.post("https://gc.handriasyrafi.site/login", {
-        email,
-        password,
-      });
-
-      const access_token = data.token;
-
-      console.log(access_token);
-
-      localStorage.setItem("access_token", access_token);
-      navigate("/");
-    } catch (error) {
-      console.log(error);
+  // Handle error messages
+  useEffect(() => {
+    if (error) {
       Swal.fire({
         icon: "error",
         title: "Oops...",
-        text: "You are not authorized",
+        text: error,
       });
-      navigate("/login");
+      dispatch(clearLoginError());
     }
+  }, [error, dispatch]);
+
+  // Handle successful login
+  useEffect(() => {
+    if (success) {
+      Swal.fire({
+        icon: "success",
+        title: "Success!",
+        text: "Login successful",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+      navigate("/");
+    }
+  }, [success, navigate]);
+
+  async function handleLogin(e) {
+    e.preventDefault();
+
+    if (!email || !password) {
+      Swal.fire({
+        icon: "error",
+        title: "Validation Error",
+        text: "Please fill in all fields",
+      });
+      return;
+    }
+
+    dispatch(loginUser({ email, password }));
   }
 
   return (
@@ -70,13 +88,18 @@ export default function Login() {
                 onChange={(e) => setPassword(e.target.value)}
                 className="border-1  w-60 py-2 rounded mb-3 px-2 text-sm"
               />
-            </div>
+            </div>{" "}
             <div>
               <button
                 type="submit"
-                className="w-60 py-2 bg-amber-400 rounded mb-3 border-gray-500 text-sm"
+                disabled={isLoading}
+                className={`w-60 py-2 rounded mb-3 border-gray-500 text-sm ${
+                  isLoading
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-amber-400 hover:bg-amber-500"
+                }`}
               >
-                Login
+                {isLoading ? "Logging in..." : "Login"}
               </button>
             </div>
             <GoogleButton />

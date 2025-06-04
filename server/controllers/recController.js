@@ -128,8 +128,10 @@ class RecController {
       const weapons = await Weapon.findAll(weaponQuery); // Modify this line
 
       if (weapons.length === 0) {
-        return res.status(404).json({ 
-          error: rarity ? `No weapons available with rarity ${rarity}` : "No weapons available" 
+        return res.status(404).json({
+          error: rarity
+            ? `No weapons available with rarity ${rarity}`
+            : "No weapons available",
         });
       }
 
@@ -281,6 +283,44 @@ class RecController {
         error: "Failed to get weapon recommendation",
         details: error.message,
       });
+    }
+  }
+
+  // Add this method to the RecController class
+  static async updateRecommendation(req, res) {
+    try {
+      const { id } = req.params;
+      const { reasoning } = req.body;
+      const userId = req.user.id;
+
+      // Find the recommendation and check ownership
+      const recommendation = await Recommendation.findOne({
+        where: { id, userId },
+      });
+
+      if (!recommendation) {
+        return res.status(404).json({ message: "Recommendation not found" });
+      }
+
+      // Update the recommendation
+      await recommendation.update({ reasoning });
+
+      // Fetch the updated recommendation with associations
+      const updatedRecommendation = await Recommendation.findByPk(id, {
+        include: [
+          { model: User, attributes: ["email"] },
+          { model: Weapon },
+          { model: Monster },
+        ],
+      });
+
+      res.status(200).json({
+        message: "Recommendation updated successfully",
+        recommendation: updatedRecommendation,
+      });
+    } catch (error) {
+      console.error("Error updating recommendation:", error);
+      res.status(500).json({ message: "Internal server error" });
     }
   }
 }
