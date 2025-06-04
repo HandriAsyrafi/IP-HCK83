@@ -38,9 +38,10 @@ Authorization: Bearer <your_token>
 
 - id: integer (primary key)
 - name: string (required)
-- type: string (required)
+- type: string (required) - also known as 'kind'
 - element: string
 - damage: integer
+- rarity: integer (1-8)
 - description: text
 
 ### Recommendation
@@ -89,10 +90,10 @@ Authenticate user with email and password.
 
 ```json
 {
-  "access_token": "eyJhbGciOiJIUzI1NiIs...",
+  "token": "eyJhbGciOiJIUzI1NiIs...",
   "user": {
     "id": 1,
-    "email": "hunter@example.com",
+    "email": "hunter@gmail.com",
     "name": "Hunter Name"
   }
 }
@@ -203,19 +204,11 @@ Retrieve all available weapons.
 
 ### Recommendation Endpoints
 
-#### 5. Get User Recommendations
+#### 5. Get All Recommendations
 
 **GET** `/recommendations`
 
-_Requires Authentication_
-
-Retrieve all recommendations for the authenticated user.
-
-**Headers:**
-
-```
-Authorization: Bearer <token>
-```
+Retrieve all recommendations from all users.
 
 **Response (200 - OK)**
 
@@ -233,6 +226,10 @@ Authorization: Bearer <token>
         "experience": "intermediate"
       },
       "createdAt": "2024-01-15T10:30:00Z",
+      "User": {
+        "id": 1,
+        "email": "hunter@example.com"
+      },
       "Monster": {
         "id": 1,
         "name": "Rathalos"
@@ -315,13 +312,72 @@ Authorization: Bearer <token>
 }
 ```
 
-#### 7. Delete Recommendation
+#### 7. Update Recommendation
+
+**PUT** `/recommendations/:id`
+
+_Requires Authentication_
+
+Update the reasoning for a specific recommendation.
+
+**Headers:**
+
+```
+Authorization: Bearer <token>
+```
+
+**Request Body:**
+
+```json
+{
+  "reasoning": "Updated reasoning for this weapon recommendation..."
+}
+```
+
+**Response (200 - OK)**
+
+```json
+{
+  "message": "Recommendation updated successfully",
+  "recommendation": {
+    "id": 1,
+    "userId": 1,
+    "monsterId": 1,
+    "weaponId": 2,
+    "reasoning": "Updated reasoning for this weapon recommendation...",
+    "preferences": {
+      "playstyle": "aggressive",
+      "experience": "intermediate"
+    },
+    "updatedAt": "2024-01-15T11:30:00Z",
+    "Monster": {
+      "id": 1,
+      "name": "Rathalos"
+    },
+    "Weapon": {
+      "id": 2,
+      "name": "Rathalos Glinsword",
+      "type": "Long Sword"
+    }
+  }
+}
+```
+
+**Response (404 - Not Found)**
+
+```json
+{
+  "message": "Recommendation not found"
+}
+```
+
+#### 8. Delete Recommendation
 
 **DELETE** `/recommendations/:id`
 
 _Requires Authentication_
 
-Delete a specific recommendation.
+Delete a specific recommendation. Users can only delete their own recommendations.
 
 **Headers:**
 
@@ -345,11 +401,19 @@ Authorization: Bearer <token>
 }
 ```
 
+**Response (403 - Forbidden)**
+
+```json
+{
+  "message": "Access denied. You can only delete your own recommendations."
+}
+```
+
 ---
 
 ### AI Analysis Endpoints
 
-#### 8. Analyze Monster
+#### 9. Analyze Monster
 
 **GET** `/monsters/:monsterId/analyze`
 
@@ -383,9 +447,9 @@ Get AI-generated strategic analysis for a specific monster using Gemini AI.
 }
 ```
 
-#### 9. Get Best Weapon for Monster
+#### 10. Get Best Weapon for Monster
 
-**GET** `/monsters/:monsterId/best-weapon`
+**GET** `/monsters/:monsterId/best-weapon?rarity=6`
 
 _Requires Authentication_
 
@@ -396,6 +460,12 @@ Get the best weapon recommendation for a specific monster using AI analysis.
 ```
 Authorization: Bearer <token>
 ```
+
+**Query Parameters:**
+
+| Parameter | Type    | Required | Description                           |
+| --------- | ------- | -------- | ------------------------------------- |
+| rarity    | integer | No       | Filter weapons by rarity (6, 7, or 8) |
 
 **Response (200 - OK)**
 
@@ -414,7 +484,8 @@ Authorization: Bearer <token>
     "name": "Dragon Piercer",
     "type": "Bow",
     "element": "Dragon",
-    "damage": 240
+    "damage": 240,
+    "rarity": 6
   }
 }
 ```
@@ -452,6 +523,15 @@ Authorization: Bearer <token>
 ```json
 {
   "message": "Resource not found"
+}
+```
+
+### 422 - Unprocessable Entity
+
+```json
+{
+  "message": "Invalid Google token",
+  "error": "Token verification failed"
 }
 ```
 
